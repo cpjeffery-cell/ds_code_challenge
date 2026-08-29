@@ -1,0 +1,3 @@
+2026-08-29 12:43:14,284 | INFO | Run started
+2026-08-29 12:43:18,018 | INFO | Validation | shared_columns=1.0000 | row_count=1.0000 | index_coverage=1.0000 | index_uniqueness=1.0000
+2026-08-29 12:43:18,018 | INFO | Run finished | extracted_rows=3832 | reference_rows=3832 | time_seconds=3.7330 | score=100.00 | threshold=99.50 | passed=True

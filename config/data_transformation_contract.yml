@@ -1,0 +1,29 @@
+# Contract for assigning service requests to resolution-8 H3 polygons.
+
+inputs:
+  service_requests_key: sr.csv.gz
+  validation_reference_key: sr_hex.csv.gz
+  validation_reference_columns:
+    - h3_level8_index
+  latitude_column: latitude
+  longitude_column: longitude
+  polygon_index_column: properties_index
+  polygon_coordinates_column: geometry_coordinates
+  output_index_column: h3_level8_index
+  zero_index: "0"
+
+spatial_join:
+  coordinate_reference_system: EPSG:4326
+  predicate: within
+  latitude_range: [-90, 90]
+  longitude_range: [-180, 180]
+  require_single_polygon_match: true
+
+validation:
+  comparison_method: row_order
+  minimum_h3_match_rate: 99.99
+  maximum_failed_join_rate: 0.01
+  count_valid_coordinate_zero_as_failed_join: true
+
+performance:
+  concurrent_download_workers: 2

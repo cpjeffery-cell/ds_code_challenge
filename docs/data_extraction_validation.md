@@ -26,7 +26,13 @@ The validation compares:
 3. `properties_index` coverage matches between datasets.
 4. `properties_index` is unique in both datasets.
 
-The index comparison is order-independent. Missing and unexpected indexes are calculated during validation but are not currently included in the returned result or log file.
+The index comparison is order-independent. Missing and unexpected index counts are written to the run log.
+
+## Pipeline Gate and Downstream Data
+
+The extraction is available to later pipeline steps only when its conformance score meets the configured threshold. A failing score stops the pipeline with an error that includes the score, threshold, and missing and unexpected index counts.
+
+After a successful validation, downstream steps receive only extracted features whose `properties_index` is also present in the standalone resolution-8 reference. This overlap is intentional and observable through the logged mismatch counts; the pipeline does not silently discard differences.
 
 ## Conformance Score
 

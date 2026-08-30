@@ -9,6 +9,15 @@ import pandas as pd
 import yaml
 
 
+class ExtractionValidationError(ValueError):
+    """Raised when extracted resolution-8 data fails validation."""
+
+    def __init__(self, message, time_seconds, score):
+        super().__init__(message)
+        self.time_seconds = time_seconds
+        self.score = score
+
+
 class DataExtraction:
     """Extract resolution-8 features and validate them against a reference."""
 
@@ -73,12 +82,10 @@ class DataExtraction:
             len(reference_df),
         ) / max(len(reference_df), 1)
 
-        extracted_indexes = set(
-            extracted_df[index_column].dropna().astype(str)
-        )
-        reference_indexes = set(
-            reference_df[index_column].dropna().astype(str)
-        )
+        extracted_indexes = set(extracted_df[index_column].dropna().astype(str))
+        reference_indexes = set(reference_df[index_column].dropna().astype(str))
+        missing_indexes = reference_indexes - extracted_indexes
+        unexpected_indexes = extracted_indexes - reference_indexes
 
         # Coverage measures how much of the reference index set was extracted.
         index_coverage_score = len(
@@ -107,11 +114,14 @@ class DataExtraction:
 
         self.logger.info(
             "Validation | shared_columns=%.4f | row_count=%.4f | "
-            "index_coverage=%.4f | index_uniqueness=%.4f",
+            "index_coverage=%.4f | index_uniqueness=%.4f | "
+            "missing_indexes=%d | unexpected_indexes=%d",
             shared_columns_score,
             row_count_score,
             index_coverage_score,
             index_uniqueness_score,
+            len(missing_indexes),
+            len(unexpected_indexes),
         )
         self.logger.info(
             "Run finished | extracted_rows=%d | reference_rows=%d | "
@@ -124,10 +134,28 @@ class DataExtraction:
             passed,
         )
 
+        if not passed:
+            raise ExtractionValidationError(
+                "Resolution-8 extraction failed validation: "
+                f"score {score:.2f}/100 is below the required "
+                f"{threshold:.2f}/100. Missing reference indexes: "
+                f"{len(missing_indexes)}; unexpected extracted indexes: "
+                f"{len(unexpected_indexes)}. The pipeline stopped before "
+                "the spatial join.",
+                time_seconds=round(elapsed_seconds, 4),
+                score=round(score, 2),
+            )
+
+        # Only validated shared indexes are available to downstream steps.
+        self.resolution_8_features = extracted_df[
+            extracted_df[index_column].astype(str).isin(reference_indexes)
+        ].copy()
+
         return {
             "time_seconds": round(elapsed_seconds, 4),
             "score": round(score, 2),
             "passed": passed,
+            "features": self.resolution_8_features,
         }
 
     def _extract_resolution_8(self, resolution):

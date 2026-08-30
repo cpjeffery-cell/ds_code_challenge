@@ -68,3 +68,60 @@ This file records AI-assisted work completed for the City of Cape Town Data Scie
 - **AI/model:** GitHub Copilot
 - **Token count:** Not available from the editor session.
 - **Correction:** Updated `docs/data_extraction_validation.md` to describe only the checks currently implemented by `DataExtraction`: shared columns, row count, index coverage, and index uniqueness. Removed claims about data types, geometry constraints, and resolution checks that are defined in the YAML but not yet executed by the class.
+
+## 2026-08-29 - Handoff Instructions
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Update `AGENTS.md` with relevant working preferences, task decisions, and implementation context so the next chat can continue with the next step.
+- **Work completed:** Added concise communication preferences, notebook and final-deliverable boundaries, credential-handling guidance, current extraction architecture, validation-contract references, logging details, Git branch status, and the known credential-removal history.
+
+## 2026-08-29 - Extraction Pipeline Gate
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Stop the pipeline when the resolution-8 extraction score is below its configured minimum and, after a successful score, use only H3 indices shared with the standalone resolution-8 reference.
+- **Work completed:** Added an `ExtractionValidationError` for a below-threshold score; the entry point now exits with a clear error before downstream work can begin. The extraction result exposes only shared-index features after passing and logs missing and unexpected index counts. Updated the validation documentation and decision record.
+- **Validation:** `python -m py_compile scripts\\data_extraction.py scripts\\main.py` and `python -m unittest tests\\test_data_extraction.py` passed.
+
+## 2026-08-29 - Failure Result Output
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Print the elapsed time, score, and failed result before the program exits for a failed extraction validation.
+- **Work completed:** Added elapsed time and score attributes to `ExtractionValidationError`. The entry point now prints `Time`, `Score`, and `Passed: False` before the detailed exit message. Added a unit-test assertion for the failure metrics.
+- **Validation:** `python -m unittest tests\\test_data_extraction.py` passed.
+
+## 2026-08-29 - Initial Data Transformation
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Move the explored spatial join into the final Python pipeline, using the prior pattern of a reusable class, YAML contract, logging, documentation, main entry-point wiring, and tests. The H3 reference-match rate must be in YAML.
+- **Work completed:** Added `InitialDataTransformation`, which reads `sr.csv.gz`, assigns each valid coordinate to a validated Step 1 resolution-8 polygon, preserves missing or invalid coordinates as `"0"`, and validates against `sr_hex.csv.gz`. Added a YAML contract with `minimum_h3_match_rate: 99.99` and `maximum_failed_join_rate: 0.01`, logging, dependency declarations, focused tests, README run instructions, and validation documentation.
+- **Decision:** The two thresholds measure different risks. The H3 reference-match rate permits the investigated immediate-neighbour boundary cases. The failed-join rate measures valid coordinates with no polygon match and remains tighter to detect spatial-join faults.
+- **Validation:** `python -m py_compile scripts\\initial_data_transformation.py scripts\\main.py` and `python -m unittest discover -s tests` passed.
+
+## 2026-08-30 - Repeatable Transformation Contract
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Make the Step 2 YAML contract more repeatable and record an instance where AI work was corrected or improved by the user.
+- **Correction/improvement by the user:** The initial AI-generated contract included input names and validation thresholds, but left reproducibility-critical spatial settings hard-coded in Python. The user identified this gap and requested that these settings be made part of the contract.
+- **Work completed:** Added executable YAML settings for the polygon-coordinate column, coordinate reference system, spatial predicate, valid coordinate ranges, one-polygon-match rule, comparison method, and failed-join counting rule. Updated the transformation class to read those settings and documented them.
+- **Validation:** `python -m unittest tests\\test_initial_data_transformation.py` passed.
+
+## 2026-08-30 - Measured Transformation Optimization
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User-provided result:** The optimized notebook profiling run completed in 21.59 seconds: 19.09 seconds for concurrent S3 download and CSV parsing, 2.33 seconds for point creation and spatial join, and 0.17 seconds for reference validation.
+- **Outcome:** This is a 2.52-second, approximately 10.5% reduction from the 24.11-second baseline. The H3 reference-match rate remained 99.996920%, confirming that the optimization did not change the assignment result.
+
+## 2026-08-30 - Transformation Performance Optimization
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Optimise the observed 24.11-second initial-transformation run using minimal reference columns and concurrent downloads.
+- **Evidence:** Notebook profiling measured 21.78 seconds for S3 download and CSV parsing, 2.15 seconds for point creation and spatial join, and 0.18 seconds for validation. The H3 match rate remained 99.996920%.
+- **Work completed:** The transformation now downloads `sr.csv.gz` and `sr_hex.csv.gz` concurrently using two configured workers. It reads all source-request fields but only `h3_level8_index` from the validation reference. The input-load duration is recorded in the transformation log.
+- **Validation:** `python -m unittest tests\\test_initial_data_transformation.py` passed.

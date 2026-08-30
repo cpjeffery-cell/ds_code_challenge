@@ -1,0 +1,3 @@
+2026-08-30 08:47:33,710 | INFO | Run started
+2026-08-30 08:47:57,763 | INFO | Validation | rows=941634 | valid_coordinates=729270 | missing_or_invalid_coordinates=212364 | failed_joins=3 | failed_join_rate=0.000411% | h3_match_rate=99.996920%
+2026-08-30 08:47:57,763 | INFO | Run finished | time_seconds=24.0521 | passed=True

@@ -9,6 +9,10 @@ from initial_data_transformation import (
     InitialDataTransformation,
     TransformationValidationError,
 )
+from further_data_transformation import (
+    FurtherDataTransformation,
+    FurtherTransformationError,
+)
 
 
 CREDENTIALS_URL = (
@@ -55,17 +59,18 @@ def main():
         / "data_extraction.log",
     )
 
+    print("\nStep 1: Resolution-8 Polygon Extraction")
     try:
         result = extraction.run()
     except ExtractionValidationError as error:
-        print(f"Time: {error.time_seconds} seconds")
-        print(f"Score: {error.score}/100")
-        print("Passed: False")
+        print(f"Extraction time: {error.time_seconds} seconds")
+        print(f"Extraction conformance score: {error.score}/100")
+        print("Extraction passed: False")
         raise SystemExit(f"Pipeline failed: {error}") from error
 
-    print(f"Time: {result['time_seconds']} seconds")
-    print(f"Score: {result['score']}/100")
-    print(f"Passed: {result['passed']}")
+    print(f"Extraction time: {result['time_seconds']} seconds")
+    print(f"Extraction conformance score: {result['score']}/100")
+    print(f"Extraction passed: {result['passed']}")
 
     transformation = InitialDataTransformation(
         s3_client=s3_client,
@@ -78,19 +83,59 @@ def main():
         / "data_transformation.log",
     )
 
+    print("\nStep 2: Service Request H3 Assignment")
     try:
         transformation_result = transformation.run(result["features"])
     except TransformationValidationError as error:
         print(f"Transformation time: {error.time_seconds} seconds")
-        print(f"H3 match rate: {error.match_rate}%")
-        print(f"Failed join rate: {error.failed_join_rate}%")
+        print(f"H3 reference-match rate: {error.match_rate}%")
+        print(f"Failed spatial joins: {error.failed_join_count}")
+        print(f"Wrong H3 assignments: {error.wrong_h3_assignment_count}")
+        print(f"Failed spatial-join rate: {error.failed_join_rate}%")
         print("Transformation passed: False")
         raise SystemExit(f"Pipeline failed: {error}") from error
 
     print(f"Transformation time: {transformation_result['time_seconds']} seconds")
-    print(f"H3 match rate: {transformation_result['match_rate']}%")
-    print(f"Failed join rate: {transformation_result['failed_join_rate']}%")
+    print(
+        "H3 reference-match rate: "
+        f"{transformation_result['match_rate']}%"
+    )
+    print(
+        "Missing or invalid coordinates: "
+        f"{transformation_result['missing_or_invalid_coordinate_count']}"
+    )
+    print(f"Failed spatial joins: {transformation_result['failed_join_count']}")
+    print(
+        "Wrong H3 assignments: "
+        f"{transformation_result['wrong_h3_assignment_count']}"
+    )
+    print(
+        "Failed spatial-join rate: "
+        f"{transformation_result['failed_join_rate']}%"
+    )
     print(f"Transformation passed: {transformation_result['passed']}")
+
+    further_transformation = FurtherDataTransformation(
+        s3_client=s3_client,
+        bucket=BUCKET,
+        contract_path=repository_root
+        / "config"
+        / "further_data_transformation_contract.yml",
+        log_path=repository_root
+        / "logs"
+        / "further_data_transformation.log",
+    )
+
+    print("\nStep 5.1: Witsand Centroid Subset")
+    try:
+        further_result = further_transformation.run()
+    except FurtherTransformationError as error:
+        raise SystemExit(f"Pipeline failed: {error}") from error
+
+    print(f"Selected suburb: {further_result['suburb_name']}")
+    print(f"Distance radius: {further_result['radius_metres']} m")
+    print(f"Selected service requests: {further_result['selected_row_count']}")
+    print(f"Step 5.1 time: {further_result['time_seconds']} seconds")
 
 
 if __name__ == "__main__":

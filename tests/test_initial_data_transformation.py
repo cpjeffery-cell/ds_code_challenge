@@ -48,6 +48,9 @@ class InitialDataTransformationTest(unittest.TestCase):
         self.assertTrue(result["passed"])
         self.assertEqual(result["match_rate"], 100.0)
         self.assertEqual(result["failed_join_rate"], 0.0)
+        self.assertEqual(result["missing_or_invalid_coordinate_count"], 0)
+        self.assertEqual(result["failed_join_count"], 0)
+        self.assertEqual(result["wrong_h3_assignment_count"], 0)
 
     def test_run_fails_when_h3_match_rate_is_below_contract(self):
         service_requests = pd.DataFrame({"latitude": [-33.9], "longitude": [18.4]})
@@ -66,8 +69,10 @@ class InitialDataTransformationTest(unittest.TestCase):
         with self.assertRaisesRegex(
             TransformationValidationError,
             "H3 match rate 0.000000% requires at least 99.990000%",
-        ):
+        ) as context:
             self.transformation.run(pd.DataFrame())
+
+        self.assertEqual(context.exception.wrong_h3_assignment_count, 1)
 
     def test_run_fails_when_failed_join_rate_exceeds_contract(self):
         service_requests = pd.DataFrame({"latitude": [-33.9], "longitude": [18.4]})

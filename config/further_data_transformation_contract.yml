@@ -1,0 +1,25 @@
+# Contract for Step 5.1: select requests near an official suburb centroid.
+
+inputs:
+  service_requests_key: sr_hex.csv.gz
+  latitude_column: latitude
+  longitude_column: longitude
+
+official_suburb_source:
+  layer_url: https://citymaps.capetown.gov.za/agsext/rest/services/Theme_Based/ODP_SPLIT_5/FeatureServer/3
+  suburb_name_column: OFC_SBRB_NAME
+  suburb_name: WITSAND
+  output_fields:
+    - OBJECTID
+    - OFC_SBRB_NAME
+
+spatial_filter:
+  coordinate_reference_system: EPSG:4326
+  projected_coordinate_reference_system: EPSG:32734
+  latitude_range: [-90, 90]
+  longitude_range: [-180, 180]
+  radius_metres: 80
+
+validation:
+  require_exactly_one_suburb: true
+  require_non_empty_subset: true

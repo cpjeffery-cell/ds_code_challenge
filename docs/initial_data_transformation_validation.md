@@ -21,6 +21,26 @@ Rows with missing, non-numeric, or out-of-range coordinates receive the string i
 
 The two measures answer different questions. The H3 match rate compares the complete output to the supplied reference. The failed-join rate measures only valid-coordinate rows that did not match any supplied City polygon. A transformation fails when either threshold is breached.
 
+## Threshold Selection Rationale
+
+The thresholds are based on the full exploratory run, not selected arbitrarily:
+
+- The observed H3 match rate was 99.996920%, with 29 differences across 941,634 requests. Three were failed spatial joins and 26 were non-zero immediate-neighbour H3 cells. A 99.99% minimum permits at most 94 differences at this volume, giving limited headroom for the investigated boundary cases while remaining only about three times the observed difference count.
+- A 99.95% match minimum was considered but rejected because it would permit about 470 differences, over sixteen times the observed 29. That would make a material regression less visible.
+- The observed failed spatial-join rate was about 0.00041%: 3 valid-coordinate requests out of 729,270 had no containing City polygon. A 0.01% maximum permits at most 72 failed joins at this volume. This allowance covers a small number of coverage or boundary edge cases while still detecting failures such as reversed coordinates, an incorrect CRS, or unavailable polygons.
+
+These limits deliberately use separate denominators. The H3 match rate uses every request because all output indices are validated against `sr_hex.csv.gz`. The failed-join rate uses only valid-coordinate requests, so required `"0"` values for missing or invalid coordinates do not appear as join failures.
+
+## Assignment Outcomes
+
+Each run reports and logs these separate counts:
+
+- Missing or invalid coordinates: requests with blank, non-numeric, or out-of-range coordinates. These receive the required `"0"` index and are not failed spatial joins.
+- Failed spatial joins: requests with valid coordinates for which no City H3 polygon was found. These also receive `"0"`, and their rate is checked against the 0.01% threshold.
+- Wrong H3 assignments: requests assigned a non-zero H3 index that differs from `sr_hex.csv.gz`. These contribute to the H3 reference-match rate but are not spatial-join failures.
+
+In the exploratory run, these categories were 212,364 missing or invalid coordinates, 3 failed spatial joins, and 26 wrong H3 assignments. The last category consisted of immediate-neighbour H3 cells and informed the 99.99% match-rate threshold.
+
 ## Reproducibility Rules
 
 The transformation contract also defines the source object names and column mappings, the polygon coordinate column, the `"0"` value for unassigned requests, the `EPSG:4326` coordinate reference system, valid latitude and longitude ranges, and the `within` spatial predicate. It requires each request to match at most one polygon and declares that the supplied service-request files are compared in row order.

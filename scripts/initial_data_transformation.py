@@ -11,15 +11,26 @@ import pandas as pd
 from shapely.geometry import shape
 import yaml
 
+from spatial_data import SpatialData
 
 class TransformationValidationError(ValueError):
     """Raised when spatial-join validation breaches its contract."""
 
-    def __init__(self, message, time_seconds, match_rate, failed_join_rate):
+    def __init__(
+        self,
+        message,
+        time_seconds,
+        match_rate,
+        failed_join_rate,
+        failed_join_count,
+        wrong_h3_assignment_count,
+    ):
         super().__init__(message)
         self.time_seconds = time_seconds
         self.match_rate = match_rate
         self.failed_join_rate = failed_join_rate
+        self.failed_join_count = failed_join_count
+        self.wrong_h3_assignment_count = wrong_h3_assignment_count
 
 
 class InitialDataTransformation:
@@ -108,7 +119,8 @@ class InitialDataTransformation:
         expected_indexes = expected_requests[output_column].fillna(zero_index)
         calculated_indexes = calculated_indexes.astype(str)
         expected_indexes = expected_indexes.astype(str)
-        match_rate = calculated_indexes.eq(expected_indexes).mean() * 100
+        matching_indexes = calculated_indexes.eq(expected_indexes)
+        match_rate = matching_indexes.mean() * 100
 
         failed_join_mask = valid_coordinates & calculated_indexes.eq(zero_index)
         failed_join_count = (
@@ -120,6 +132,10 @@ class InitialDataTransformation:
         failed_join_rate = (
             failed_join_count / max(valid_coordinate_count, 1) * 100
         )
+        missing_or_invalid_coordinate_count = (~valid_coordinates).sum()
+        wrong_h3_assignment_count = (
+            calculated_indexes.ne(zero_index) & ~matching_indexes
+        ).sum()
         elapsed_seconds = time.perf_counter() - start_time
 
         passed = (
@@ -132,10 +148,17 @@ class InitialDataTransformation:
             "failed_join_rate=%.6f%% | h3_match_rate=%.6f%%",
             len(joined_requests),
             valid_coordinate_count,
-            (~valid_coordinates).sum(),
+            missing_or_invalid_coordinate_count,
             failed_join_count,
             failed_join_rate,
             match_rate,
+        )
+        self.logger.info(
+            "Assignment outcomes | missing_or_invalid_coordinates=%d | "
+            "failed_spatial_joins=%d | wrong_h3_assignments=%d",
+            missing_or_invalid_coordinate_count,
+            failed_join_count,
+            wrong_h3_assignment_count,
         )
         self.logger.info(
             "Run finished | input_load_seconds=%.4f | time_seconds=%.4f | "
@@ -155,12 +178,19 @@ class InitialDataTransformation:
                 time_seconds=round(elapsed_seconds, 4),
                 match_rate=round(match_rate, 6),
                 failed_join_rate=round(failed_join_rate, 6),
+                failed_join_count=int(failed_join_count),
+                wrong_h3_assignment_count=int(wrong_h3_assignment_count),
             )
 
         return {
             "time_seconds": round(elapsed_seconds, 4),
             "match_rate": round(match_rate, 6),
             "failed_join_rate": round(failed_join_rate, 6),
+            "missing_or_invalid_coordinate_count": int(
+                missing_or_invalid_coordinate_count
+            ),
+            "failed_join_count": int(failed_join_count),
+            "wrong_h3_assignment_count": int(wrong_h3_assignment_count),
             "passed": passed,
             "data": joined_requests,
         }
@@ -181,19 +211,13 @@ class InitialDataTransformation:
         inputs,
         spatial_join_contract,
     ):
-        latitude = pd.to_numeric(
-            service_requests[inputs["latitude_column"]],
-            errors="coerce",
-        )
-        longitude = pd.to_numeric(
-            service_requests[inputs["longitude_column"]],
-            errors="coerce",
-        )
-        valid_coordinates = (
-            latitude.notna()
-            & longitude.notna()
-            & latitude.between(*spatial_join_contract["latitude_range"])
-            & longitude.between(*spatial_join_contract["longitude_range"])
+        request_points, valid_coordinates = SpatialData.points_from_coordinates(
+            service_requests,
+            inputs["latitude_column"],
+            inputs["longitude_column"],
+            spatial_join_contract["latitude_range"],
+            spatial_join_contract["longitude_range"],
+            spatial_join_contract["coordinate_reference_system"],
         )
 
         polygon_index = inputs["polygon_index_column"]
@@ -215,14 +239,6 @@ class InitialDataTransformation:
 
         joined_requests = service_requests.copy()
         joined_requests[output_column] = inputs["zero_index"]
-        request_points = gpd.GeoDataFrame(
-            joined_requests.loc[valid_coordinates].copy(),
-            geometry=gpd.points_from_xy(
-                longitude.loc[valid_coordinates],
-                latitude.loc[valid_coordinates],
-            ),
-            crs=spatial_join_contract["coordinate_reference_system"],
-        ).drop(columns=output_column)
 
         spatial_join = gpd.sjoin(
             request_points,

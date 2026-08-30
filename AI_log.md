@@ -2,6 +2,35 @@
 
 This file records AI-assisted work completed for the City of Cape Town Data Science Unit Code Challenge.
 
+## 2026-08-30 - Step 5.1 Further Data Transformation
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Implement only Step 5.1 using the same reusable-class, YAML-contract, logging, documentation, test, and entry-point pattern as earlier steps.
+- **Decisions:** The selected official planning suburb is `WITSAND`, which yielded 48 requests within the tested 80 m radius. The radius is a documented straight-line approximation of one minute walking. The subset stays in memory for the later Step 5.2 augmentation; no intermediate artifact is written.
+- **Work completed:** Added reusable `SpatialData` point construction, refactored Step 2 to use it, and added `FurtherDataTransformation`, its contract, logging, focused tests, documentation, and Step 5.1 entry-point wiring. The official suburb is filtered by the City FeatureServer before it is downloaded. No wind-data or anonymisation work was added.
+
+## 2026-08-30 - Server-Side Suburb Filtering Improvement
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **Correction/improvement by the user:** The initial approach loaded the full Official Suburb layer before filtering for Atlantis. The user asked to filter for Atlantis before loading the data.
+- **Change:** The approach uses the City FeatureServer `where` parameter to request only the configured official suburb polygon. This reduces transfer and local processing while preserving the authoritative City source.
+
+## 2026-08-30 - Transformation Threshold Rationale
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Record the reasoning for the selected H3 reference-match and failed-spatial-join thresholds.
+- **Work completed:** Added a quantitative threshold-selection section to the transformation validation documentation. It records the observed 29 H3 differences, 3 failed joins, 26 immediate-neighbour assignments, the rejected 99.95% option, and the permitted difference and failed-join counts at the selected 99.99% and 0.01% limits.
+
+## 2026-08-30 - Pipeline Output Labels
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Clearly print the different pipeline steps and identify which pass rates and measurements belong to each step.
+- **Work completed:** Added Step 1 and Step 2 headings to the entry-point output. Extraction reports its conformance score, while transformation reports its H3 reference-match rate and failed spatial-join rate with the related counts.
+
 ## 2026-08-28
 
 - **AI/model:** GitHub Copilot
@@ -124,4 +153,12 @@ This file records AI-assisted work completed for the City of Cape Town Data Scie
 - **User request:** Optimise the observed 24.11-second initial-transformation run using minimal reference columns and concurrent downloads.
 - **Evidence:** Notebook profiling measured 21.78 seconds for S3 download and CSV parsing, 2.15 seconds for point creation and spatial join, and 0.18 seconds for validation. The H3 match rate remained 99.996920%.
 - **Work completed:** The transformation now downloads `sr.csv.gz` and `sr_hex.csv.gz` concurrently using two configured workers. It reads all source-request fields but only `h3_level8_index` from the validation reference. The input-load duration is recorded in the transformation log.
+- **Validation:** `python -m unittest tests\\test_initial_data_transformation.py` passed.
+
+## 2026-08-30 - Transformation Outcome Reporting
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Print the number of failed spatial joins and distinguish intentional `"0"` assignments for missing or invalid coordinates from failed joins and wrong non-zero H3 assignments.
+- **Work completed:** The transformation result, failure exception, terminal output, and log now report separate counts for missing or invalid coordinates, failed spatial joins, and wrong H3 assignments. Documentation explains which counts affect the join-failure and H3-reference-match thresholds.
 - **Validation:** `python -m unittest tests\\test_initial_data_transformation.py` passed.

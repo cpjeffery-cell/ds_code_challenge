@@ -1,0 +1,4 @@
+2026-08-30 10:27:16,249 | INFO | Run started
+2026-08-30 10:27:29,374 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.1239
+2026-08-30 11:09:50,619 | INFO | Run started
+2026-08-30 11:10:04,058 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.4369

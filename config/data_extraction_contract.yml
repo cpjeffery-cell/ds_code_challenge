@@ -1,0 +1,82 @@
+# Contract for validating resolution-8 GeoJSON extraction.
+# The extracted multi-resolution dataset may contain extra columns.
+
+comparison:
+  index_column: properties_index
+  expected_resolution: 8
+  minimum_score: 99.5
+
+checks:
+  shared_columns:
+    enabled: true
+    weight: 0.15
+  row_count:
+    enabled: true
+    weight: 0.20
+  index_coverage:
+    enabled: true
+    weight: 0.45
+  index_uniqueness:
+    enabled: true
+    weight: 0.20
+
+expected_shared_columns:
+  - type
+  - properties_index
+  - properties_centroid_lat
+  - properties_centroid_lon
+  - geometry_type
+  - geometry_coordinates
+
+expected_extraction_only_columns:
+  - properties_resolution
+
+schema:
+  required_shared_columns:
+    type: string
+    properties_index: string
+    properties_centroid_lat: number
+    properties_centroid_lon: number
+    geometry_type: string
+    geometry_coordinates: array
+
+  extraction_only_columns:
+    properties_resolution: integer
+
+  constraints:
+    properties_index:
+      required: true
+      unique: true
+    properties_resolution:
+      required: true
+      equals: 8
+    geometry_type:
+      required: true
+      equals: Polygon
+    geometry_coordinates:
+      required: true
+      non_empty: true
+
+scoring:
+  scale: 100
+  pass_threshold: 99.5
+  formula: >
+    score = (
+      shared_columns_score * 0.15
+      + row_count_score * 0.20
+      + index_coverage_score * 0.45
+      + index_uniqueness_score * 0.20
+    ) * 100
+  components:
+    shared_columns_score:
+      description: All required shared columns are present in both datasets.
+      range: [0, 1]
+    row_count_score:
+      description: 1 for equal row counts, otherwise reduced by the relative difference.
+      range: [0, 1]
+    index_coverage_score:
+      description: Matching validation indexes divided by total validation indexes.
+      range: [0, 1]
+    index_uniqueness_score:
+      description: 1 when the index is unique in both datasets, otherwise 0.
+      range: [0, 1]

@@ -1,0 +1,49 @@
+# Contract for Step 5.1: select requests near an official suburb centroid.
+
+inputs:
+  service_requests_key: sr_hex.csv.gz
+  latitude_column: latitude
+  longitude_column: longitude
+
+official_suburb_source:
+  layer_url: https://citymaps.capetown.gov.za/agsext/rest/services/Theme_Based/ODP_SPLIT_5/FeatureServer/3
+  suburb_name_column: OFC_SBRB_NAME
+  suburb_name: WITSAND
+  output_fields:
+    - OBJECTID
+    - OFC_SBRB_NAME
+
+spatial_filter:
+  coordinate_reference_system: EPSG:4326
+  projected_coordinate_reference_system: EPSG:32734
+  latitude_range: [-90, 90]
+  longitude_range: [-180, 180]
+  radius_metres: 80
+
+validation:
+  require_exactly_one_suburb: true
+  require_non_empty_subset: true
+
+# Contract for Step 5.2: augment the Step 5.1 subset with 2020 Atlantis wind data.
+wind_augmentation:
+  source:
+    url: https://www.arcgis.com/sharing/rest/content/items/31ef242a23484e79bbb19d6b29203179/data
+    max_download_attempts: 3
+    retry_delay_seconds: 2
+
+  workbook:
+    header_search_row_count: 15
+    date_time_column_label: "Date & Time"
+    station_name: "Atlantis AQM Site"
+    direction_label: "Wind Dir V"
+    speed_label: "Wind Speed V"
+    date_time_format: "%d/%m/%Y %H:%M"
+
+  join:
+    notification_time_column: creation_timestamp
+    direction_column: wind_direction_deg
+    speed_column: wind_speed_ms
+    max_gap_hours: 3
+
+  validation:
+    require_non_empty_observations: true

@@ -1,0 +1,37 @@
+# Contract for Step 5.3: anonymise the Step 5.2 augmented Witsand subsample.
+
+direct_identifier_columns:
+  - "Unnamed: 0"
+  - notification_number
+  - reference_number
+
+location:
+  h3_column: h3_level8_index
+  columns_to_drop:
+    - latitude
+    - longitude
+
+time:
+  bucket_hours: 6
+  columns_to_generalize:
+    - creation_timestamp
+    - completion_timestamp
+
+k_anonymity:
+  base_quasi_identifier_columns:
+    - h3_level8_index
+    - creation_timestamp
+  generalization_column: cause_code
+  generalization_hierarchy:
+    - cause_code
+    - cause_code_group
+  time_column: creation_timestamp
+  time_generalization_hierarchy:
+    - 1D
+    - 7D
+    - 30D
+  minimum_group_size: 5
+
+outputs:
+  anonymised_path: output/witsand_wind_anonymised.csv
+  review_path: output/witsand_wind_needs_review.csv

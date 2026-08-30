@@ -3,6 +3,21 @@
 
 # City of Cape Town - Data Science Unit Code Challenge
 
+## How to Run This Submission
+
+This submission targets the **Data Engineering** track (Steps 1, 2, and 5).
+
+1. Install Python 3.12+ and the dependencies: `pip install -r requirements.txt`
+2. Run the entry point from the repository root: `python scripts/main.py`
+
+No credentials, environment variables, or other manual setup are required — AWS credentials and all external data (H3 polygons, service requests, the official suburb boundary, and the 2020 Atlantis wind workbook) are fetched automatically at runtime. The run completes with no human interaction and prints a labelled summary for each step (time taken, validation results, and pass/fail) to the console.
+
+Each step also writes a log to `logs/`, and Step 5.3 writes its two CSV outputs to `output/` (excluded from git — see [docs/data_anonymisation.md](docs/data_anonymisation.md) for why). Supporting design decisions and validation methodology for each step are documented in [docs/](docs/), and the AI-assisted work log is in [AI_log.md](AI_log.md).
+
+Unit tests can be run with: `python -m unittest discover -s tests`
+
+`scripts/working_notebook.ipynb` is exploratory only and is not part of the graded submission; the reusable, tested implementation lives in `scripts/*.py`.
+
 ## Purpose
 
 The purpose of this challenge is to evaluate the skills of prospective Data Scientists, Engineers, Analysts and Front End Developer for positions in the City of Cape Town's Data Science unit. 
@@ -25,24 +40,17 @@ You should have received over 7 days warning that you would be undertaking this 
 ### Things to focus on
 Over and above the tasks specified below, there are particular aspects of each position that we would like you to pay attention to:
 
-* Data Scientist candidates - we're looking for both good, statistical insight into problems, as well as the ability to communicate complex topics. Please make special effort to highlight what you believe to be the crux of a particular problem, as well as how your work addresses it.
 * Data Engineer candidates - as the key enablers of our unit's work, we really want to see work done in a sustainable manner: writing for easy comprehension, testing, clean code, modularity all bring us joy.
-* Data Analyst candidates - we think our analysts have done a good job when they provide insights that inform actual decisions. Hence, we want evidence of both the ability to surface these insights from data, as well as the skill to convey those insights. Your audience is intelligent, but non-specialist.
 
 ### Candidates where programming is required (Data Scientist; Engineers, Visualisation Engineer and Front End Developers)
 Requirements and notes:
 * For Data Science and Data Engineering, our primary programming languages are `python`, `R` and `SQL`. We will accept code that is packaged in `.py`, `.ipynb`, `.R` and `.Rmd` files. Scripts in `.sql` may also be included where applicable.
-* Data Visualisation engineers and Front End Developers should have knowledge of either `python` or `R`, and relevant front-end programming languages (e.g. Javascript, HTML, CSS). We will accept code that is packaged in `.py`, `.R` and appropriate front-end programming language specific files, e.g. `.js`, `.html` etc. Furthermore, we greatly appreciate adherence to the principles and guidelines of [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application).
 * Bash or similar scripting language files are fine for glue. You may develop in any development environment you choose. 
 * We expect to be able to clone your repo, immediately identify what script to execute from your README file, and execute it to completion with no human interaction. 
   In order to ensure that our environment has the right libraries or packages, please follow standard python (PEP8) or R guidelines for structure in your code, i.e place `import` and `library()` commands at the top of your scripts.
 * If your repo does not clone and run, we will not attempt to fix it.
 * If your analysis makes use of any external data, the data must either be included in the repo, or be downloaded automatically during script execution.
 
-### Candidates where programming is not required (Data Analysts)
-*Note* If you prefer, you may submit using the requirements described above.
-
-You can use any tool to produce the output, e.g. Python, R, Excel, Power BI, Tableau, etc. The **final deliverable needs to be a pdf report** with your analysis.
 
 ### Follow-on Questions
 If we invite you to an interview, after completing and submitting this technical assessment, we will be asking follow-up 
@@ -67,14 +75,6 @@ If you do make use of Generative AI/Coding Agents, please include an `AI_log.md`
 **Be sure to 'watch' this repo for changes - we may push bugfixes**
 
 NOTE: If you would like to _improve_ the content of this repository, by fixing typos or perhaps enhancing the challenge, please do so by submitting a pull request.
-
-### Candidates where programming is not required (Data Analysts)
-*NB* If you prefer, you may submit using the workflow described above.
-
-1. Download this repository using the Code -> `Download ZIP` option in the top right-hand corner.
-2. Add your work into this folder.
-3. Create a compressed archive file with all of your work in it.
-4. Send us an email, with your archived project attached. If it is larger than 10 MB, then share it via a cloud storage service such as DropBox, and include the link in your email. 
 
 ## Challenge
 Follow the below steps, completing those indicated as relevant to the positions for which you are interviewing. If there are any steps that you can not complete after a reasonable amount of effort, rather move on to later steps, attempting everything relevant at least once.
@@ -114,50 +114,6 @@ For any requests where the `Latitude` and `Longitude` fields are empty, set the 
 
 Include logging that lets the executor know how many of the records failed to join, and include a join error threshold above which the script will error out. Please motivate why you have selected the error threshold that you have. Please also log the time taken to perform the operations described, and within reason, try to optimise latency and computational resources used.
 
-### 3. Descriptive Analytic Tasks (if applying for a Data Analyst Position)
-*Note:* We are most interested in how you reason about the problem.
-
-Please use the `sr_hex_truncated.csv` dataset to address the following.
-
-Please provide the following:
-1. An answer to the question "In which 3 suburbs should the Urban Waste Management directorate concentrate their infrastructure improvement efforts?". Please motivate how you related the data provided to infrastructure issues.
-2. An answer to the questions:
-    1. Focusing on the Urban Waste Management directorate - "What is the median & 80th percentile time to complete each service request across the City?" (each row represent a service request).
-    2. Focusing on the Urban Waste Management directorate - "What is the median & 80th percentile time to complete each service request for the 3 suburbs identified in (1)?" (each row represent a service request).
-    3. "Is there any significant differences in the median and 80th percentile completion times between the City as a whole and the 3 suburbs identified in(1)?".  Please elaborate on the similarities or differences.
-3. Provide a visual mock of a dashboard for the purpose of monitoring progress in applying the insights developed in (1) & (2). It should focus the user on performance pain points. Add a note for each visual element, explaining how it helps fulfill this overall function. Please also provide a brief explanation as to how the data provided would be used to realise what is contained in your mock.
-4. Identify value-adding insights for the management of Urban Waste Management, from the dataset provided, in regard to waste collection within the City.
- 
-The **final deliverable** is a report (in PDF form) for the Executive Management team of the City.  An Executive-level, non-specialist should be able to read the report and follow your analysis without guidance.
-
-### 4. Predictive Analytic Tasks (if applying for a Data Science Position)
-
-Please choose __one__ of the following four tasks to solve:  (for the tasks you choose to solve, we expect you to provide (1) an initial solution and (2) an improved solution of your initial solution. For both we expect the code together with evidence or images of training or inference results, e.g. metrics, loss graph, output logs from hyperparameter tuning, confusion matrixs, etc)
-
-1. *Time series challenge*: Predict the weekly number of expected service requests per hex that will be created each week using `sr_hex.csv`, for 4 weeks past the end of the dataset.
-2. *Introspection challenge*: (using `sr_hex.csv`)    
-   2.1. Reshape the data into number of requests created, per type, per H3 level 8 hex in the last 12 months.  
-   2.2. Choose a type, and then develop a model that predicts the number of requests of that type per hex.   
-   2.3. Use the model developed in (2.2) to predict the number in (2.1).   
-   2.4. Based upon the model, and any other analysis, determine the drivers of requests of that particular type(s).   
-3. *Classification challenge*: Classify a hex in `sr_hex.csv` as sparsely or densely populated, solely based on the service request data. Provide an explanation as to how you're using the data to perform this classification. Using your classifier, please highlight any unexpected or unusual classifications, and comment on why that might be the case.
-4. *Anomaly Detection challenge*: Reshape the `sr_hex.csv` data into the number of requests created per department, per day. Please identify any days in the first 6 months of 2020 where an anomalous number of requests were created for a particular department. Please describe how you would motivate to the director of that department why they should investigate that anomaly. Your argument should rely upon the contents of the dataset and/or your anomaly detection model.
-
-Item/Task 5 must be solved:  (we expect you to provide (1) an initial solution and (2) an improved solution of your initial solution. For both we expect the code together with evidence or images of training or inference results, e.g. metrics, loss graph, output logs from hyperparameter tuning, confusion matrixs, etc)
-
-5. *Computer Vision classification challenge*: Use a sample of images from the `swimming-pool` dataset to develop a model that classifies whether an image contains a swimming pool or not. Use the provided labels to validate your model.
-
-Feel free to use any other data you can find in the public domain, except for tasks (3) and (5).
-
-**The final output of the execution of your code should be a self-contained `html` file or executed `ipynb` file that is your report.** 
- 
-A statistically minded layperson should be able to read this report and follow your analysis without guidance. In the 
-report there should be evidence of any model training done (e.g. loss graph, output logs from hyperparameter tuning), 
-along with quantitative measures or predictions of the quality of any models developed. We also expect to see some 
-process commentary, describing the quality of any initial results, refinements made, and the resulting improvement.
-
-Please also log the time taken to perform the operations described, and within reason, try to optimise latency and computation resources used. Please also note the comments above with respect to the nature of work that we expect from data scientists.
-
 ### 5. Further Data Transformations (if applying for a Data Engineering Position)
 1. Create a subsample of the data by selecting all of the requests in `sr_hex.csv.gz` which are within 1 minute of the centroid of an official suburb in the proximity of Atlantis in the North of the City of Cape Town's bounds. You may determine the centroid of the suburb by the **computational** method of your choice (i.e. do not just hard code the value), but if any external data is used, your code should programmatically download and perform the centroid calculation. Please clearly document your method.
 
@@ -169,22 +125,6 @@ Please also log the time taken to perform the operations described, and within r
    * Any records or columns which you believe could lead to the resident who made the request being identified despite the restrictions made above. For the records removed, make provision for a separate review by a person to anonymise the data by hand.
 We expect in the accompanying report that you will justify as to why this data is now anonymised. Please limit this commentary to less than 500 words. If your code is written in a code notebook such as Jupyter notebook or Rmarkdown, you can include this commentary in your notebook.
 
-### 6. Data Visualisation Task (if applying for a Data Visualisation Engineering or Front End Developer Position)
-
-Using the [`sr_hex.csv.gz`](https://cct-ds-code-challenge-input-data.s3.af-south-1.amazonaws.com/sr_hex.csv.gz) dataset and open source front-end web technologies (html, css, javascript, etc), develop a data visualisation / dashboard that help to answer the question:
-
-*"In which suburbs should the Water and Sanitation directorate concentrate their infrastructure improvement efforts?".*
-
-The data visualisation / dashboard must include the following:
-
-1. A chart (plot) or charts (plots) that helps to answer the above question.
-2. A minimalist cartographic map with identifiable landmark features (e.g. major roads, railways, etc.) and some representation of the data.
-3. Make (1) and (2) interactive in some manner, so as to allow users to explore the data and uncover insights. The following example [Map with "range" sliders](https://observablehq.com/d/a040753103477386) demostrates an interactive map. However, you're not limited to this example – feel free to explore other interactive approaches.
-4. Data Storytelling: in a separate markdown document, titled `data-driven-storytelling.md`, provide a brief, step-by-step, point form description of how your visualisations (and information from the dataset) outline a data-driven story that answers the above question. 
-5. Design Principles: In a separate markdown document, titled `visualisation-design-choices.md`, please provide a brief, point form explanation for why you have chosen certain colours (e.g. for legends), fonts, the layout or anything else that will help us understand your thinking in designing the data visualisation / dashboard to answer the question. 
-6. Publish your work using an online service such as https://pages.github.com/ or any other means you are familiar with.  Anyone with an Internet connection and a modern browser such as Google Chrome, Mozilla Firefox or Microsoft Edge, should be able to see the end product and interact with it. Please reference the published link to your visualisation tool in the `README.md` of your repository.
-
-Please also note the comments above about the nature of the code that we expect.
 
 ## Contact
 You can contact gordon.inggs, muhammed.ockards, kathryn.mcdermott and/or colinscott.anthony @ capetown.gov.za for any questions on the above.

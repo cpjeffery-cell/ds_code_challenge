@@ -1,0 +1,7 @@
+boto3
+certifi
+geopandas
+openpyxl
+pandas
+PyYAML
+shapely

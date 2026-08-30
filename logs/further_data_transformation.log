@@ -2,3 +2,27 @@
 2026-08-30 10:27:29,374 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.1239
 2026-08-30 11:09:50,619 | INFO | Run started
 2026-08-30 11:10:04,058 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.4369
+2026-08-30 21:12:20,306 | INFO | Run started
+2026-08-30 21:12:38,272 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=17.9637
+2026-08-30 22:38:57,011 | INFO | Run started
+2026-08-30 22:39:10,888 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.8751
+2026-08-30 22:47:43,288 | INFO | Run started
+2026-08-30 22:47:58,831 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=15.5410
+2026-08-30 22:49:15,792 | INFO | Run started
+2026-08-30 22:49:28,685 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=12.8914
+2026-08-30 22:51:03,331 | INFO | Run started
+2026-08-30 22:51:17,984 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=14.6511
+2026-08-30 23:01:58,349 | INFO | Run started
+2026-08-30 23:02:11,856 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=13.5048
+2026-08-30 23:17:39,658 | INFO | Run started
+2026-08-30 23:17:51,357 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=11.6976
+2026-08-30 23:23:32,296 | INFO | Run started
+2026-08-30 23:23:45,103 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=12.8060
+2026-08-30 23:24:53,135 | INFO | Run started
+2026-08-30 23:25:05,964 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=12.8276
+2026-08-30 23:28:25,951 | INFO | Run started
+2026-08-30 23:28:40,884 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=14.9320
+2026-08-30 23:46:24,949 | INFO | Run started
+2026-08-30 23:46:27,106 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=2.1558
+2026-08-30 23:48:49,498 | INFO | Run started
+2026-08-30 23:48:52,184 | INFO | Subset | suburb=WITSAND | suburb_object_id=413 | centroid_x=268518.019 | centroid_y=6280756.384 | radius_metres=80 | input_rows=941634 | invalid_coordinates=212364 | selected_rows=76 | time_seconds=2.6844

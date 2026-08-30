@@ -1,0 +1,20 @@
+2026-08-30 22:48:01,027 | INFO | Run started
+2026-08-30 22:48:01,050 | INFO | Anonymisation | input_rows=76 | anonymised_rows=5 | flagged_rows=71 | time_seconds=0.0229
+2026-08-30 22:49:31,229 | INFO | Run started
+2026-08-30 22:49:31,246 | INFO | Anonymisation | input_rows=76 | anonymised_rows=5 | flagged_rows=71 | time_seconds=0.0167
+2026-08-30 22:51:20,890 | INFO | Run started
+2026-08-30 22:51:20,907 | INFO | Anonymisation | input_rows=76 | anonymised_rows=5 | flagged_rows=71 | time_seconds=0.0176
+2026-08-30 23:02:15,227 | INFO | Run started
+2026-08-30 23:02:15,248 | INFO | Anonymisation | input_rows=76 | anonymised_rows=5 | flagged_rows=71 | time_seconds=0.0220
+2026-08-30 23:17:54,481 | INFO | Run started
+2026-08-30 23:17:54,519 | INFO | Anonymisation | input_rows=76 | anonymised_rows=5 | flagged_rows=71 | time_seconds=0.0381
+2026-08-30 23:23:48,173 | INFO | Run started
+2026-08-30 23:23:48,221 | INFO | Anonymisation | input_rows=76 | anonymised_rows=62 | flagged_rows=14 | time_seconds=0.0475
+2026-08-30 23:25:08,852 | INFO | Run started
+2026-08-30 23:25:08,901 | INFO | Anonymisation | input_rows=76 | anonymised_rows=62 | flagged_rows=14 | time_seconds=0.0487
+2026-08-30 23:28:43,963 | INFO | Run started
+2026-08-30 23:28:44,019 | INFO | Anonymisation | input_rows=76 | anonymised_rows=62 | flagged_rows=14 | time_seconds=0.0555
+2026-08-30 23:46:30,820 | INFO | Run started
+2026-08-30 23:46:30,867 | INFO | Anonymisation | input_rows=76 | anonymised_rows=62 | flagged_rows=14 | time_seconds=0.0475
+2026-08-30 23:48:55,078 | INFO | Run started
+2026-08-30 23:48:55,124 | INFO | Anonymisation | input_rows=76 | anonymised_rows=62 | flagged_rows=14 | time_seconds=0.0454

@@ -3,6 +3,21 @@
 
 # City of Cape Town - Data Science Unit Code Challenge
 
+## How to Run This Submission
+
+This submission targets the **Data Engineering** track (Steps 1, 2, and 5).
+
+1. Install Python 3.12+ and the dependencies: `pip install -r requirements.txt`
+2. Run the entry point from the repository root: `python scripts/main.py`
+
+No credentials, environment variables, or other manual setup are required — AWS credentials and all external data (H3 polygons, service requests, the official suburb boundary, and the 2020 Atlantis wind workbook) are fetched automatically at runtime. The run completes with no human interaction and prints a labelled summary for each step (time taken, validation results, and pass/fail) to the console.
+
+Each step also writes a log to `logs/`, and Step 5.3 writes its two CSV outputs to `output/` (excluded from git — see [docs/data_anonymisation.md](docs/data_anonymisation.md) for why). Supporting design decisions and validation methodology for each step are documented in [docs/](docs/), and the AI-assisted work log is in [AI_log.md](AI_log.md).
+
+Unit tests can be run with: `python -m unittest discover -s tests`
+
+`scripts/working_notebook.ipynb` is exploratory only and is not part of the graded submission; the reusable, tested implementation lives in `scripts/*.py`.
+
 ## Purpose
 
 The purpose of this challenge is to evaluate the skills of prospective Data Scientists, Engineers, Analysts and Front End Developer for positions in the City of Cape Town's Data Science unit. 

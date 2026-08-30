@@ -12,7 +12,10 @@ from initial_data_transformation import (
 from further_data_transformation import (
     FurtherDataTransformation,
     FurtherTransformationError,
+    WindAugmentationError,
+    WindDataAugmentation,
 )
+from data_anonymisation import DataAnonymisation
 
 
 CREDENTIALS_URL = (
@@ -128,7 +131,9 @@ def main():
 
     print("\nStep 5.1: Witsand Centroid Subset")
     try:
-        further_result = further_transformation.run()
+        further_result = further_transformation.run(
+            service_requests=transformation_result["data"]
+        )
     except FurtherTransformationError as error:
         raise SystemExit(f"Pipeline failed: {error}") from error
 
@@ -136,6 +141,47 @@ def main():
     print(f"Distance radius: {further_result['radius_metres']} m")
     print(f"Selected service requests: {further_result['selected_row_count']}")
     print(f"Step 5.1 time: {further_result['time_seconds']} seconds")
+
+    wind_augmentation = WindDataAugmentation(
+        contract_path=repository_root
+        / "config"
+        / "further_data_transformation_contract.yml",
+        log_path=repository_root
+        / "logs"
+        / "wind_data_augmentation.log",
+    )
+
+    print("\nStep 5.2: Atlantis Wind Augmentation")
+    try:
+        wind_result = wind_augmentation.run(further_result["data"])
+    except WindAugmentationError as error:
+        raise SystemExit(f"Pipeline failed: {error}") from error
+
+    print(f"Wind observations parsed: {wind_result['observation_count']}")
+    print(f"Unmatched service requests: {wind_result['unmatched_row_count']}")
+    print(f"Step 5.2 time: {wind_result['time_seconds']} seconds")
+
+    anonymisation = DataAnonymisation(
+        contract_path=repository_root
+        / "config"
+        / "data_anonymisation_contract.yml",
+        log_path=repository_root
+        / "logs"
+        / "data_anonymisation.log",
+    )
+
+    print("\nStep 5.3: Witsand Wind Subsample Anonymisation")
+    anonymisation_result = anonymisation.run(
+        wind_result["data"], repository_root=repository_root
+    )
+
+    print(f"Anonymised rows: {anonymisation_result['anonymised_row_count']}")
+    print(f"Flagged for manual review: {anonymisation_result['flagged_row_count']}")
+    print(f"Anonymised output: {anonymisation_result['anonymised_path']}")
+    print(f"Review output: {anonymisation_result['review_path']}")
+    print(f"Step 5.3 time: {anonymisation_result['time_seconds']} seconds")
+
+    print("\nPipeline complete: Steps 1, 2, 5.1, 5.2, 5.3 all passed.")
 
 
 if __name__ == "__main__":

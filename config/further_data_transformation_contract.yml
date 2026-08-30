@@ -23,3 +23,27 @@ spatial_filter:
 validation:
   require_exactly_one_suburb: true
   require_non_empty_subset: true
+
+# Contract for Step 5.2: augment the Step 5.1 subset with 2020 Atlantis wind data.
+wind_augmentation:
+  source:
+    url: https://www.arcgis.com/sharing/rest/content/items/31ef242a23484e79bbb19d6b29203179/data
+    max_download_attempts: 3
+    retry_delay_seconds: 2
+
+  workbook:
+    header_search_row_count: 15
+    date_time_column_label: "Date & Time"
+    station_name: "Atlantis AQM Site"
+    direction_label: "Wind Dir V"
+    speed_label: "Wind Speed V"
+    date_time_format: "%d/%m/%Y %H:%M"
+
+  join:
+    notification_time_column: creation_timestamp
+    direction_column: wind_direction_deg
+    speed_column: wind_speed_ms
+    max_gap_hours: 3
+
+  validation:
+    require_non_empty_observations: true

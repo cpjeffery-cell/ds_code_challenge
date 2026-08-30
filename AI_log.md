@@ -2,6 +2,49 @@
 
 This file records AI-assisted work completed for the City of Cape Town Data Science Unit Code Challenge.
 
+**Token usage:** GitHub Copilot Chat does not expose a per-response token count through any tool or API available to the assistant during this session. The user reports VS Code's own UI showed a figure of approximately 3,776 for this session as a whole; entries below note "Not available" per-entry because no finer-grained breakdown could be obtained by the assistant.
+
+## 2026-08-30 - K-Anonymity Time-Bucket Generalization Fix
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **Issue observed:** After adding cause-code generalization (`cause_code` -> `cause_code_group` -> suppression), 71 of 76 Witsand rows still had to be flagged for manual review, unchanged from before that fix.
+- **Diagnosis:** The whole Witsand subsample shares a single `h3_level8_index` value, so location contributes nothing to separating rows; all of the k-anonymity burden falls on `creation_timestamp`. The 6-hour and even 7-day time buckets were too fine for 76 requests spread across a full year: most weeks had fewer than 5 requests, but most months had 5 or more. The configured time-generalization hierarchy stopped at 7 days, one step short of where the data actually clustered.
+- **Correction:** Added a 30-day fallback level to `time_generalization_hierarchy` in `config/data_anonymisation_contract.yml`. Verified directly against the real flagged output before changing anything further: an ad hoc 30-day floor rescued 62 of the 71 flagged rows.
+- **Outcome:** Re-running the full pipeline confirmed the fix: 62 anonymised rows (up from 5), 14 flagged for manual review (down from 71). The remaining 14 fall in months with only 2-3 requests all year, which cannot be made non-unique even at monthly granularity — that residual is the expected, honest outcome for this sparse subsample, not a flaw in the approach.
+- **User-considered and rejected alternative:** A keyed cipher/hash for `notification_number` (to allow reversible re-linkage) was discussed and explicitly rejected: it would address a different problem (protecting a direct identifier while preserving linkage) and does nothing for quasi-identifier uniqueness, which was the actual cause of the high flag rate.
+- **Validation:** `python -m unittest discover -s tests` passed (16 tests); confirmed against the real Witsand data (`output/witsand_wind_needs_review.csv`) before and after the fix.
+
+## 2026-08-30 - Step 5.3 Witsand Wind Subsample Anonymisation
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Discuss a strategy for anonymising the Step 5.2 augmented subsample before implementing, following the established class/contract/logging/test/docs/entry-point pattern.
+- **Decisions:** `DataAnonymisation` lives in its own file (`scripts/data_anonymisation.py`), with its own new contract (`config/data_anonymisation_contract.yml`), reflecting that it is a materially distinct step from Steps 5.1/5.2. Location precision is achieved by dropping raw `latitude`/`longitude` and keeping only the already-computed `h3_level8_index` (H3 resolution 8, ~461 m average edge, a defensible match for "approximately 500 m") rather than rounding coordinates. Time precision uses 6-hour flooring of both `creation_timestamp` and `completion_timestamp`. `Unnamed: 0`, `notification_number`, and `reference_number` are dropped as direct identifiers. A k-anonymity check (minimum group size 5) over `h3_level8_index` + generalised `creation_timestamp` + `cause_code` splits the data into an anonymised CSV and a "needs review" CSV for a person to anonymise by hand, per the assessment's explicit provision for that case.
+- **Privacy consideration raised during design:** The "needs review" file, by definition, contains rows that failed the k-anonymity check and are still re-identifiable. Since the assignment requires the repository to be hosted publicly, both output files are written under a new `output/` directory that is excluded via `.gitignore`, rather than being committed.
+- **Work completed:** Added `DataAnonymisation`, its contract, Step 5.3 wiring in `main.py`, focused tests covering identifier/column dropping, 6-hour bucketing, and the k-anonymity split, and documentation of the method and justification.
+- **Validation:** `python -m unittest discover -s tests` passed (13 tests).
+
+## 2026-08-30 - Wind Augmentation Output Hardening
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Reviewed whether a proposed row-count check after the wind join was necessary and what else was worth considering. The user agreed two of the suggested follow-ups were worth doing (row-order preservation, physical-range sanity checks) and asked for the row-count check to be removed in favour of them.
+- **Reasoning:** `pd.merge_asof` structurally cannot duplicate left rows, so a row-count check mostly guarded against a future implementation change rather than a real current failure mode. Two more likely issues were identified instead: (1) sorting the subset by timestamp before the asof join reorders the output relative to the caller's input, and `merge_asof` also drops the original index, so a naive `sort_index()` did not actually restore order; and (2) a column-detection mistake could silently feed physically impossible values (e.g. direction outside 0-360 degrees, negative speed) into the join without being caught.
+- **Work completed:** Removed the row-count check. `_join_nearest` now reattaches the sorted-left index to the merge output before sorting it back, so the augmented data preserves the caller's original row order. `_parse_observations` now nulls out direction/speed values outside their physically valid ranges instead of passing them through. Replaced the row-count test with tests for row-order preservation and range nulling.
+- **Validation:** `python -m unittest discover -s tests` passed (11 tests).
+
+## 2026-08-30 - Step 5.2 Atlantis Wind Augmentation
+
+- **AI/model:** GitHub Copilot
+- **Token count:** Not available from the editor session.
+- **User request:** Implement Step 5.2 following the established class, YAML-contract, logging, documentation, test, and entry-point pattern, without hard-coding any of the Step 5.1/5.2 decisions.
+- **External dependency investigation:** The README's `.ods` download handler URL returned an HTTP 404 page, and the direct CityApps `.ods` URL failed DNS resolution. The City-owned ArcGIS-hosted `Wind.xlsx` (`arcgis.com/sharing/rest/content/items/31ef242a23484e79bbb19d6b29203179/data`) was confirmed working via metadata inspection and used instead. A WAQI real-time air-quality API was considered and rejected as the wrong data type/timeframe.
+- **Correction/improvement by the user:** An earlier notebook draft of the retry logic used placeholder URLs for both "primary" and "fallback" attempts and generated synthetic `np.random` weather data as a last resort. The user flagged this as unacceptable. The implemented approach instead retries the single verified URL a configurable number of times with increasing delay, and raises a clear error if every attempt fails, rather than fabricating data.
+- **Decisions:** `WindDataAugmentation` lives in the same file as `FurtherDataTransformation`, and its settings live in a new `wind_augmentation` section of the existing `further_data_transformation_contract.yml` (not a separate config file), per user preference. The nearest-timestamp nature of the hourly wind data with a configurable `max_gap_hours` tolerance, so requests are not misleadingly paired with distant observations.
+- **Work completed:** Added `WindDataAugmentation` and `WindAugmentationError`, the `wind_augmentation` contract section, `openpyxl` as a dependency, Step 5.2 wiring in `main.py`, focused tests covering the nearest-join tolerance and retry exhaustion, and documentation of the method.
+- **Validation:** `python -m unittest tests.test_wind_data_augmentation` passed.
+
 ## 2026-08-30 - Step 5.1 Further Data Transformation
 
 - **AI/model:** GitHub Copilot
